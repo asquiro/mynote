@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "927831368807",
+    "project_id": "my-note-project-78e2c",
+    "storage_bucket": "my-note-project-78e2c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:927831368807:android:bde330aed05301c8ff60c2",
+        "android_client_info": {
+          "package_name": "com.mbtechnologies.mypersonalnote"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "927831368807-345336qloe1jmcnper1m3bdt1klssuln.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzbPX-R-2FgCkmv_iYtItrQNUmsFPpEl8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "927831368807-345336qloe1jmcnper1m3bdt1klssuln.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
