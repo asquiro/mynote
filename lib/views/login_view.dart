@@ -60,7 +60,9 @@ class _LoginViewState extends State<LoginView> {
               final password = _password.text;
               try {
                 await FirebaseAuth.instance.signInWithEmailAndPassword(
-                    email: email, password: password);
+                  email: email,
+                  password: password,
+                );
                 if (!mounted) return;
                 Navigator.of(context).pushNamedAndRemoveUntil(
                   noteRoute,
@@ -88,7 +90,9 @@ class _LoginViewState extends State<LoginView> {
                 );
               }
             },
-            child: const Text('Login'),
+            child: const Text(
+              'Login',
+            ),
           ),
           TextButton(
             onPressed: () {
@@ -97,7 +101,9 @@ class _LoginViewState extends State<LoginView> {
                 (route) => false,
               );
             },
-            child: const Text('Not Registered?, pls Register here!'),
+            child: const Text(
+              'Not Registered?, pls Register here!',
+            ),
           ),
         ],
       ),
