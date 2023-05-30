@@ -100,7 +100,7 @@ class _NoteviewState extends State<Noteview> {
       ),
       body: const Text(
         textAlign: TextAlign.center,
-        'Hello World',
+        'Thanks for reaching this page, your highly welcome\'thanks you!',
       ),
     );
   }

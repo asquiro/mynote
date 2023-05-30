@@ -69,9 +69,8 @@ class _RegisterviewState extends State<Registerview> {
                 final user = FirebaseAuth.instance.currentUser;
                 await user?.sendEmailVerification();
                 if (!mounted) return;
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                  loginRoute,
-                  (route) => false,
+                Navigator.of(context).pushNamed(
+                  verifyEmailRoute,
                 );
               } on FirebaseAuthException catch (e) {
                 if (e.code == 'user-not-found') {
@@ -103,10 +102,7 @@ class _RegisterviewState extends State<Registerview> {
           ),
           TextButton(
             onPressed: () {
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                loginRoute,
-                (route) => false,
-              );
+              FirebaseAuth.instance.signOut();
             },
             child: const Text('already Registered?, Login here!'),
           ),
