@@ -1,9 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer' as devtools show log;
 
 import 'package:mypersonalnote/constant/routes.dart';
+import 'package:mypersonalnote/services/auth/auth_exception.dart';
+import 'package:mypersonalnote/services/auth/auth_service.dart';
 import 'package:mypersonalnote/utilities/show_error_dialog.dart';
 
 class Registerview extends StatefulWidget {
@@ -61,40 +62,36 @@ class _RegisterviewState extends State<Registerview> {
               final password = _password.text;
 
               try {
-                FirebaseAuth.instance.createUserWithEmailAndPassword(
+                await AuthServices.firebase().createUser(
                   email: email,
                   password: password,
                 );
 
-                final user = FirebaseAuth.instance.currentUser;
-                await user?.sendEmailVerification();
+                AuthServices.firebase().currentUser;
+                AuthServices.firebase().sendEmailVerification;
                 if (!mounted) return;
                 Navigator.of(context).pushNamed(
                   verifyEmailRoute,
                 );
-              } on FirebaseAuthException catch (e) {
-                if (e.code == 'user-not-found') {
-                  await showErrorDialog(
-                    context,
-                    'user not foud'.toString(),
-                  );
-                } else if (e.code == 'weak-password') {
-                  await showErrorDialog(
-                    context,
-                    'weak password'.toString(),
-                  );
-                } else if (e.code == 'email-already-in-use') {
-                  devtools.log('Email already in use by a user');
-                } else if (e.code == 'invalid-email') {
-                  await showErrorDialog(
-                    context,
-                    'Invalid Email'.toString(),
-                  );
-                }
-              } catch (e) {
+              } on UserNotFoundAuthException {
                 await showErrorDialog(
                   context,
-                  e.toString(),
+                  'user not found',
+                );
+              } on WeakPasswordAuthException {
+                await showErrorDialog(
+                  context,
+                  'invalid credentials',
+                );
+              } on EmailAlreadInUseAuthException {
+                await showErrorDialog(
+                  context,
+                  'email already in use',
+                );
+              } on GenericAuthException {
+                await showErrorDialog(
+                  context,
+                  'fail to register',
                 );
               }
             },
@@ -102,7 +99,7 @@ class _RegisterviewState extends State<Registerview> {
           ),
           TextButton(
             onPressed: () {
-              FirebaseAuth.instance.signOut();
+              AuthServices.firebase().logOut();
             },
             child: const Text('already Registered?, Login here!'),
           ),

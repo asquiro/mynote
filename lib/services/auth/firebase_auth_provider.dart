@@ -1,4 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:mypersonalnote/firebase_options.dart';
 import 'package:mypersonalnote/services/auth/auth_exception.dart';
 import 'package:mypersonalnote/services/auth/auth_user.dart';
 import 'package:mypersonalnote/services/auth/auth_provider.dart';
@@ -24,6 +26,8 @@ class FirebaseAuthProvide implements AuthProvider {
         throw UserNotFoundAuthException();
       }
     } on FirebaseAuthException catch (e) {
+      debugPrint("my error is ${e.toString()}");
+      debugPrint("my error code : ${e.code}");
       if (e.code == 'weak-password') {
         throw WeakPasswordAuthException();
       } else if (e.code == 'email-already-in-use') {
@@ -39,11 +43,10 @@ class FirebaseAuthProvide implements AuthProvider {
   }
 
   @override
-  // TODO: implement currentUser
   AuthUser? get currentUser {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      return AuthUser.fromFirebase(user);
+      return AuthUser.getFromFirebase(user);
     } else {
       return null;
     }
@@ -95,5 +98,12 @@ class FirebaseAuthProvide implements AuthProvider {
       await user.sendEmailVerification();
     }
     throw UserNotFoundAuthException();
+  }
+
+  @override
+  Future<void> initialize() async {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   }
 }
