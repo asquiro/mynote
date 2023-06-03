@@ -1,6 +1,3 @@
-import 'dart:math';
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mypersonalnote/services/auth/auth_exception.dart';
 import 'package:mypersonalnote/services/auth/auth_provider.dart';
 import 'package:mypersonalnote/services/auth/auth_user.dart';
@@ -8,8 +5,8 @@ import 'package:test/test.dart';
 
 void main() {
   group('Mock Authentication', () {
-    final provider = MockAuthProvider();
-    test('Can not be initialized to begin with', () {
+    var provider = MockAuthProvider();
+    test('should not be initialized to begin with', () {
       expect(provider.isInitialized, false);
     });
 
@@ -22,12 +19,12 @@ void main() {
       );
     });
 
-    test('Should be able to Initialized', () async {
+    test('Should be able to be Initialized', () async {
       await provider.initialize();
       expect(provider.isInitialized, true);
     });
 
-    test('Current user should be null', () {
+    test('user should be null after initialization', () {
       expect(provider.currentUser, null);
     });
 
@@ -62,16 +59,21 @@ void main() {
       provider.sendEmailVerification();
       final user = provider.currentUser;
       expect(user, isNotNull);
-      expect(user!.isEmailVerified, true);
+      expect(user?.isEmailVerified, true);
     });
-    test('Should be able to log out and login again', () async {});
+    test('Should be able to log out and login again', () async {
+      await provider.logOut();
+      await provider.logIn(email: 'email', password: 'password');
+      final user = provider.currentUser;
+      expect(user, isNotNull);
+    });
   });
 }
 
 class NotInitializedException implements Exception {}
 
 class MockAuthProvider implements AuthProvider {
-  final _isInitialized = false;
+  var _isInitialized = false;
   AuthUser? _user;
   bool get isInitialized => _isInitialized;
 
@@ -80,8 +82,6 @@ class MockAuthProvider implements AuthProvider {
     required String email,
     required String password,
   }) async {
-    // TODO: implement createUser
-
     if (!isInitialized) throw NotInitializedException();
     await Future.delayed(
       const Duration(seconds: 1),
@@ -100,6 +100,7 @@ class MockAuthProvider implements AuthProvider {
     await Future.delayed(
       const Duration(seconds: 1),
     );
+    _isInitialized = true;
   }
 
   @override
@@ -108,7 +109,7 @@ class MockAuthProvider implements AuthProvider {
     required String password,
   }) {
     if (!isInitialized) throw NotInitializedException();
-    if (email == 'food@bar.com') throw UserNotFoundAuthException();
+    if (email == 'foo@bar.com') throw UserNotFoundAuthException();
     if (password == 'fox123') throw WrongPasswordAuthException();
     const user = AuthUser(isEmailVerified: false);
     _user = user;

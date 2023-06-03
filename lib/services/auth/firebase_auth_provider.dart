@@ -26,14 +26,12 @@ class FirebaseAuthProvide implements AuthProvider {
         throw UserNotFoundAuthException();
       }
     } on FirebaseAuthException catch (e) {
-      debugPrint("my error is ${e.toString()}");
-      debugPrint("my error code : ${e.code}");
-      if (e.code == 'weak-password') {
-        throw WeakPasswordAuthException();
-      } else if (e.code == 'email-already-in-use') {
-        throw EmailAlreadInUseAuthException();
-      } else if (e.code == 'invalid-email') {
-        throw InvalidEmailAuthException();
+      // debugPrint("my error is ${e.toString()}");
+      // debugPrint("my error code : ${e.code}");
+      if (e.code == 'user-not-found') {
+        throw UserNotFoundAuthException();
+      } else if (e.code == 'wrong-password') {
+        throw WrongPasswordAuthException();
       } else {
         throw GenericAuthException();
       }
@@ -46,7 +44,7 @@ class FirebaseAuthProvide implements AuthProvider {
   AuthUser? get currentUser {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      return AuthUser.getFromFirebase(user);
+      return AuthUser.fromFirebase(user);
     } else {
       return null;
     }
@@ -69,10 +67,10 @@ class FirebaseAuthProvide implements AuthProvider {
         throw UserNotLoggedInAuthException();
       }
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        throw UserNotFoundAuthException();
-      } else if (e.code == 'wrong-password') {
-        throw WrongPasswordAuthException();
+      if (e.code == 'weak-password') {
+        throw WeakPasswordAuthException();
+      } else if (e.code == 'email-already-in-use') {
+        throw EmailAlreadInUseAuthException();
       } else {
         throw GenericAuthException();
       }

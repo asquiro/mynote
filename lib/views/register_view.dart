@@ -1,6 +1,5 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer' as devtools show log;
+// import 'dart:developer' as devtools show log;
 
 import 'package:mypersonalnote/constant/routes.dart';
 import 'package:mypersonalnote/services/auth/auth_exception.dart';
@@ -81,7 +80,7 @@ class _RegisterviewState extends State<Registerview> {
               } on WeakPasswordAuthException {
                 await showErrorDialog(
                   context,
-                  'invalid credentials',
+                  'weak password',
                 );
               } on EmailAlreadInUseAuthException {
                 await showErrorDialog(
@@ -100,6 +99,10 @@ class _RegisterviewState extends State<Registerview> {
           TextButton(
             onPressed: () {
               AuthServices.firebase().logOut();
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                loginRoute,
+                (route) => false,
+              );
             },
             child: const Text('already Registered?, Login here!'),
           ),
