@@ -4,20 +4,81 @@ import 'package:path_provider/path_provider.dart';
 
 import 'package:path/path.dart' show join;
 
-class DatabaseAlreadyOpenException implements Exception {}
-
-class UnableToGetDocumentDirector implements Exception {}
-
-class DatabaseIsNotOpen implements Exception {}
-
-class UserAlreadyExist implements Exception {}
-
-class CouldNotDeleteUser implements Exception {}
-
-class CouldNotFindUser implements Exception {}
+import 'crud_exceptions.dart';
 
 class NotesServices {
   Database? _db;
+
+  Future<DatabaseNote> updateNote(
+      {required DatabaseNote note, required String text}) async {
+    final db = _getDatabaseOpenorThrow();
+    await getNote(id: note.id);
+    final updateCount = await db.update(noteTable, {
+      isSyncedWithCloudColumn: 0,
+      textColumn: text,
+    });
+    if (updateCount == 0) {
+      throw CouldNotUpdateNote();
+    }
+    return await getNote(id: note.id);
+  }
+
+  Future<Iterable<DatabaseNote>> getAllNote() async {
+    final db = _getDatabaseOpenorThrow();
+    final notes = await db.query(noteTable);
+    return notes.map((noteList) => DatabaseNote.fromRow(noteList));
+  }
+
+  Future<DatabaseNote> getNote({required int id}) async {
+    final db = _getDatabaseOpenorThrow();
+    final dbNote = await db.query(noteTable, where: 'id = ?', whereArgs: [id]);
+    if (dbNote.isEmpty) {
+      throw CouldNotFindNote();
+    } else {
+      return DatabaseNote.fromRow(dbNote.first);
+    }
+  }
+
+  Future<int> deleteAllNote() async {
+    final db = _getDatabaseOpenorThrow();
+    return await db.delete(noteTable);
+  }
+
+  Future<void> deleteNote({required int id}) async {
+    final db = _getDatabaseOpenorThrow();
+    final deletedCount = await db.delete(
+      noteTable,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    if (deletedCount == 0) {
+      throw CouldNotDeleteNote();
+    }
+  }
+
+  Future<DatabaseNote> createNote({required DatabaseUser owner}) async {
+    final db = _getDatabaseOpenorThrow();
+
+    // be sure that the actually user is grapped from the firebase
+    final dbUser = await getUser(email: owner.email);
+    if (dbUser != owner) {
+      throw CouldNotFindUser();
+    }
+    const text = '';
+
+    // create note
+    final noteId = await db.insert(
+      noteTable,
+      {userIdColumn: owner.id, textColumn: text, isSyncedWithCloudColumn: 1},
+    );
+    final note = DatabaseNote(
+      id: noteId,
+      userId: owner.id,
+      text: text,
+      isSyncedWithCloud: true,
+    );
+    return note;
+  }
 
   Future<DatabaseUser> getUser({required String email}) async {
     final db = _getDatabaseOpenorThrow();
@@ -44,7 +105,7 @@ class NotesServices {
   }
 
 // to delete user table, execute the following code as shown below
-  Future<void> deleteUser({required String email}) async {
+  Future<void> deleteAUser({required String email}) async {
     final db = _getDatabaseOpenorThrow();
     final deletedCount =
         await db.delete(userTable, where: 'email =?', whereArgs: [
