@@ -3,7 +3,7 @@ import 'package:mypersonalnote/enum/menu_action.dart';
 import 'package:mypersonalnote/services/auth/auth_service.dart';
 import 'package:mypersonalnote/services/crud/note_services.dart';
 
-import '../constant/routes.dart';
+import '../../constant/routes.dart';
 
 class Noteview extends StatefulWidget {
   const Noteview({super.key});
@@ -20,13 +20,12 @@ class _NoteviewState extends State<Noteview> {
   @override
   void initState() {
     _noteServices = NotesServices();
-    _noteServices!.open();
+
     super.initState();
   }
 
   @override
   void dispose() {
-    _noteServices = NotesServices();
     _noteServices!.close();
     super.dispose();
   }
@@ -35,8 +34,14 @@ class _NoteviewState extends State<Noteview> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Main Home'),
+        title: const Text('Your Notes'),
         actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).pushNamed(newNoteRoute);
+            },
+            icon: const Icon(Icons.add),
+          ),
           PopupMenuButton<MenuItem>(
             onSelected: (value) async {
               switch (value) {
