@@ -15,9 +15,33 @@ class NotesServices {
 
   // make a declaration of singleton in the note services here below
   static final NotesServices _shared = NotesServices._sharedInstance();
-  NotesServices._sharedInstance();
+  NotesServices._sharedInstance() {
+    // assign the _noteStreamController to StreamController so it could be invoked
+    _noteStreamController = StreamController<List<DatabaseNote>>.broadcast(
+      onListen: () {
+        // listerner add all the note to getAllNote
+        _noteStreamController.sink.add(_note);
+      },
+    );
+  }
+
   factory NotesServices() => _shared;
 
+  // _create note streamcontroller and store it on database note
+  late final StreamController<List<DatabaseNote>> _noteStreamController;
+
+  // create a stream of databasenote and and return it to _noteStreamController.stream
+  Stream<List<DatabaseNote>> get allNote => _noteStreamController.stream;
+
+  // create a function that catch the note
+  Future<void> _catchNote() async {
+    await _ensureDbIsOpen();
+    final allNote = await getAllNote();
+    _note = allNote.toList();
+    _noteStreamController.add(_note);
+  }
+
+// create your user or get your user here
   Future<DatabaseUser> getorCreateUser({required String email}) async {
     await _ensureDbIsOpen();
     try {
@@ -30,21 +54,6 @@ class NotesServices {
     } catch (e) {
       rethrow;
     }
-  }
-
-  // _create note streamcontroller and store it on database note
-  final _noteStreamController =
-      StreamController<List<DatabaseNote>>.broadcast();
-
-  // create a stream of databasenote and and return it to _noteStreamController.stream
-  Stream<List<DatabaseNote>> get allNote => _noteStreamController.stream;
-
-  // create a function that catch the note
-  Future<void> _catchNote() async {
-    await _ensureDbIsOpen();
-    final allNote = await getAllNote();
-    _note = allNote.toList();
-    _noteStreamController.add(_note);
   }
 
   Future<DatabaseNote> updateNote(

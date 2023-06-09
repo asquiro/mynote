@@ -19,15 +19,15 @@ class _NoteviewState extends State<Noteview> {
   @override
   void initState() {
     _noteServices = NotesServices();
-
     super.initState();
   }
 
-  @override
-  void dispose() {
-    _noteServices!.close();
-    super.dispose();
-  }
+// lets override the dispose function for now so we wont be closing the databse when not expected
+  // @override
+  // void dispose() {
+  //   _noteServices!.close();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +80,26 @@ class _NoteviewState extends State<Noteview> {
                       switch (snapshot.connectionState) {
                         case ConnectionState.waiting:
                         case ConnectionState.active:
-                          return const Text('Waiting for all notes');
+                          if (snapshot.hasData) {
+                            debugPrint('print ${snapshot.data}');
+                            final allNotes =
+                                snapshot.data as List<DatabaseNote>;
+                            return ListView.builder(
+                              itemCount: allNotes.length,
+                              itemBuilder: (context, index) {
+                                final note = allNotes[index];
+                                return ListTile(
+                                  title: Text(
+                                    note.text,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                );
+                              },
+                            );
+                          } else {
+                            return const CircularProgressIndicator();
+                          }
                         default:
                           return const CircularProgressIndicator();
                       }

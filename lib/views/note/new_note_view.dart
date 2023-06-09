@@ -17,9 +17,9 @@ class _NewNoteViewState extends State<NewNoteView> {
 
   @override
   void initState() {
-    super.initState();
     _notesServices = NotesServices();
     _textController = TextEditingController();
+    super.initState();
   }
 
 // create a function that update the database each time a text is entered in the text field
