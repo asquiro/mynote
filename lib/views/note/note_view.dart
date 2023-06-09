@@ -7,7 +7,6 @@ import '../../constant/routes.dart';
 
 class Noteview extends StatefulWidget {
   const Noteview({super.key});
-
   @override
   State<Noteview> createState() => _NoteviewState();
 }
@@ -72,6 +71,7 @@ class _NoteviewState extends State<Noteview> {
       body: FutureBuilder(
           future: _noteServices!.getorCreateUser(email: userEmail),
           builder: (context, snapshot) {
+            // debugPrint(" snapshot CONNECTION : ${snapshot.connectionState}");
             switch (snapshot.connectionState) {
               case ConnectionState.done:
                 return StreamBuilder(
@@ -79,6 +79,7 @@ class _NoteviewState extends State<Noteview> {
                     builder: (context, snapshot) {
                       switch (snapshot.connectionState) {
                         case ConnectionState.waiting:
+                        case ConnectionState.active:
                           return const Text('Waiting for all notes');
                         default:
                           return const CircularProgressIndicator();

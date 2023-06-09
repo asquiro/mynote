@@ -6,7 +6,6 @@ import 'package:mypersonalnote/views/login_view.dart';
 import 'package:mypersonalnote/views/note/new_note_view.dart';
 import 'package:mypersonalnote/views/note/note_view.dart';
 import 'package:mypersonalnote/views/register_view.dart';
-import 'package:path/path.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

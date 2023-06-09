@@ -21,6 +21,7 @@ class NotesServices {
   Future<DatabaseUser> getorCreateUser({required String email}) async {
     await _ensureDbIsOpen();
     try {
+      debugPrint(" REACH CREATE USER HERE  :");
       final user = getUser(email: email);
       return user;
     } on CouldNotFindUser {
@@ -200,6 +201,7 @@ class NotesServices {
 // make sure the database is always open for any function it should be revoked
   Future<void> _ensureDbIsOpen() async {
     try {
+      debugPrint(" OPEN HERE:");
       await open();
     } on DatabaseAlreadyOpenException {
       //
@@ -218,18 +220,20 @@ class NotesServices {
   }
 
   Future<void> open() async {
-    await _ensureDbIsOpen();
+    // debugPrint("called opening database ");
+
     if (_db != null) {
       throw DatabaseAlreadyOpenException();
     }
     try {
+      debugPrint("opening database ");
       final getPath = await getApplicationDocumentsDirectory();
       final dbPath = join(getPath.path, dbName);
       final db = await openDatabase(dbPath);
       _db = db;
 
       // CREATE USER TABLE AND GRAP THE CODE FROM THE SQLITE AND REPLACE AFTER THE THREE QUOTE
-
+      debugPrint("opening database 2");
       await db.execute(createUserTable);
 // CREATE NOTE TABLE AND GRAP THE CODE FROM THE SQLITE AND REPLACE AFTER THE THREE QUOTE
 
