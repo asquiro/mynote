@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:mypersonalnote/services/auth/auth_service.dart';
 import 'package:mypersonalnote/services/crud/note_services.dart';
+import 'package:mypersonalnote/utilities/generics/get_arguments.dart';
 
-class NewNoteView extends StatefulWidget {
-  const NewNoteView({super.key});
+class CreateUpdateNoteView extends StatefulWidget {
+  const CreateUpdateNoteView({super.key});
 
   @override
-  State<NewNoteView> createState() => _NewNoteViewState();
+  State<CreateUpdateNoteView> createState() => _CreateUpdateNoteViewState();
 }
 
-class _NewNoteViewState extends State<NewNoteView> {
+class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
   // make some late declaration so that when the note view is tapped on add note, it can dispaly the list of notes and create fileds
   DatabaseNote? _note;
   late final NotesServices _notesServices;
@@ -40,7 +41,15 @@ class _NewNoteViewState extends State<NewNoteView> {
   }
 
 // create a function that create a new note as shown below
-  Future<DatabaseNote> createNewNote() async {
+  Future<DatabaseNote> createOrGetExistingNote(BuildContext context) async {
+    // this function update the already existed note
+    final widgetNote = context.getArgument<DatabaseNote>();
+    if (widgetNote != null) {
+      _note = widgetNote;
+      _textController.text = widgetNote.text;
+      return widgetNote;
+    }
+
     final existingNote = _note;
     if (existingNote != null) {
       return existingNote;
@@ -50,7 +59,9 @@ class _NewNoteViewState extends State<NewNoteView> {
     final currentUser = AuthServices.firebase().currentUser!;
     final email = currentUser.email!;
     final owner = await _notesServices.getUser(email: email);
-    return await _notesServices.createNote(owner: owner);
+    final newNote = await _notesServices.createNote(owner: owner);
+    _note = newNote;
+    return newNote;
   }
 
 // create a function to invoke _noteServices.deleteNote if the note is empty
@@ -85,12 +96,12 @@ class _NewNoteViewState extends State<NewNoteView> {
         title: const Text('new notes'),
       ),
       body: FutureBuilder(
-        future: createNewNote(),
+        future: createOrGetExistingNote(context),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
               debugPrint("REACH HERE ${snapshot.data.toString()}");
-              _note = snapshot.data;
+// remove the _note.snapshot as List
               _setupTextControllerListerner();
               return TextField(
                 controller: _textController,

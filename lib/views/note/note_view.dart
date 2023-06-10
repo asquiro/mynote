@@ -3,6 +3,7 @@ import 'package:mypersonalnote/enum/menu_action.dart';
 import 'package:mypersonalnote/services/auth/auth_service.dart';
 import 'package:mypersonalnote/services/crud/note_services.dart';
 import 'package:mypersonalnote/utilities/dialogs/logout_dialog.dart';
+
 import 'package:mypersonalnote/views/note/note_list_view.dart';
 
 import '../../constant/routes.dart';
@@ -39,7 +40,7 @@ class _NoteviewState extends State<Noteview> {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.of(context).pushNamed(newNoteRoute);
+              Navigator.of(context).pushNamed(createOrUpdateNoteRoute);
             },
             icon: const Icon(Icons.add),
           ),
@@ -87,6 +88,12 @@ class _NoteviewState extends State<Noteview> {
                             final allNotes =
                                 snapshot.data as List<DatabaseNote>;
                             return NoteListView(
+                              onTap: (notes) {
+                                Navigator.of(context).pushNamed(
+                                  createOrUpdateNoteRoute,
+                                  arguments: notes,
+                                );
+                              },
                               onDeletedNote: (note) async {
                                 await _noteServices!.deleteNote(id: note.id);
                               },

@@ -3,7 +3,7 @@ import 'package:mypersonalnote/constant/routes.dart';
 import 'package:mypersonalnote/services/auth/auth_service.dart';
 import 'package:mypersonalnote/verify_email_view.dart';
 import 'package:mypersonalnote/views/login_view.dart';
-import 'package:mypersonalnote/views/note/new_note_view.dart';
+import 'package:mypersonalnote/views/note/create_update_note_view.dart';
 import 'package:mypersonalnote/views/note/note_view.dart';
 import 'package:mypersonalnote/views/register_view.dart';
 
@@ -20,7 +20,7 @@ void main() async {
         registerRoute: (context) => const Registerview(),
         noteRoute: (context) => const Noteview(),
         verifyEmailRoute: (context) => const VerifyEmailView(),
-        newNoteRoute: (context) => const NewNoteView(),
+        createOrUpdateNoteRoute: (context) => const CreateUpdateNoteView(),
       },
     ),
   );
