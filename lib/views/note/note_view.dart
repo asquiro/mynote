@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mypersonalnote/enum/menu_action.dart';
 import 'package:mypersonalnote/services/auth/auth_service.dart';
 import 'package:mypersonalnote/services/crud/note_services.dart';
+import 'package:mypersonalnote/utilities/dialogs/logout_dialog.dart';
+import 'package:mypersonalnote/views/note/note_list_view.dart';
 
 import '../../constant/routes.dart';
 
@@ -22,7 +24,7 @@ class _NoteviewState extends State<Noteview> {
     super.initState();
   }
 
-// lets override the dispose function for now so we wont be closing the databse when not expected
+// lets override the dispose function for now so we wont be closing the databse when not suposed to
   // @override
   // void dispose() {
   //   _noteServices!.close();
@@ -45,7 +47,7 @@ class _NoteviewState extends State<Noteview> {
             onSelected: (value) async {
               switch (value) {
                 case MenuItem.logout:
-                  final showLoging = await showLogDialog(context);
+                  final showLoging = await showLogoutDialog(context);
                   if (showLoging) {
                     await AuthServices.firebase().logOut();
                     if (!mounted) return;
@@ -71,7 +73,7 @@ class _NoteviewState extends State<Noteview> {
       body: FutureBuilder(
           future: _noteServices!.getorCreateUser(email: userEmail),
           builder: (context, snapshot) {
-            // debugPrint(" snapshot CONNECTION : ${snapshot.connectionState}");
+            // debugPrint(" snapshot CONNECTION : $ {snapshot.connectionState}");
             switch (snapshot.connectionState) {
               case ConnectionState.done:
                 return StreamBuilder(
@@ -84,18 +86,11 @@ class _NoteviewState extends State<Noteview> {
                             debugPrint('print ${snapshot.data}');
                             final allNotes =
                                 snapshot.data as List<DatabaseNote>;
-                            return ListView.builder(
-                              itemCount: allNotes.length,
-                              itemBuilder: (context, index) {
-                                final note = allNotes[index];
-                                return ListTile(
-                                  title: Text(
-                                    note.text,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                );
+                            return NoteListView(
+                              onDeletedNote: (note) async {
+                                await _noteServices!.deleteNote(id: note.id);
                               },
+                              notes: allNotes,
                             );
                           } else {
                             return const CircularProgressIndicator();
@@ -110,30 +105,4 @@ class _NoteviewState extends State<Noteview> {
           }),
     );
   }
-}
-
-Future<bool> showLogDialog(BuildContext context) {
-  return showDialog<bool>(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text('Sign Out'),
-        content: const Text('Comfirm you want to signout'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false);
-            },
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true);
-            },
-            child: const Text('Log out'),
-          ),
-        ],
-      );
-    },
-  ).then((value) => value ?? false);
 }
