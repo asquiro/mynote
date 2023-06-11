@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:mypersonalnote/extension/list/filter.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -12,6 +13,7 @@ class NotesServices {
   Database? _db;
 
   List<DatabaseNote> _note = [];
+  DatabaseUser? _user;
 
   // make a declaration of singleton in the note services here below
   static final NotesServices _shared = NotesServices._sharedInstance();
@@ -31,7 +33,41 @@ class NotesServices {
   late final StreamController<List<DatabaseNote>> _noteStreamController;
 
   // create a stream of databasenote and and return it to _noteStreamController.stream
-  Stream<List<DatabaseNote>> get allNote => _noteStreamController.stream;
+  Stream<List<DatabaseNote>> get allNote =>
+      _noteStreamController.stream.filter((note) {
+        // all the note to be fetched only to user who's registered and had created the note and note to random user;
+
+        final currentUser = _user;
+        if (currentUser != null) {
+          return note.userId == currentUser.id;
+        } else {
+          throw UserShouldBeSetBeforeReadingAllNote();
+        }
+      });
+// create your user or get your user here
+  Future<DatabaseUser> getorCreateUser({
+    required String email,
+    bool setAsCurrentUser = true,
+  }) async {
+    // await _ensureDbIsOpen();
+    try {
+      debugPrint(" REACH CREATE USER HERE  :");
+      final user = await getUser(email: email);
+      if (setAsCurrentUser) {
+        _user = user;
+      }
+
+      return user;
+    } on CouldNotFindUser {
+      final createdUser = await createUser(email: email);
+      if (setAsCurrentUser) {
+        _user = createdUser;
+      }
+      return createdUser;
+    } catch (e) {
+      rethrow;
+    }
+  }
 
   // create a function that catch the note
   Future<void> _catchNote() async {
@@ -41,30 +77,23 @@ class NotesServices {
     _noteStreamController.add(_note);
   }
 
-// create your user or get your user here
-  Future<DatabaseUser> getorCreateUser({required String email}) async {
-    await _ensureDbIsOpen();
-    try {
-      debugPrint(" REACH CREATE USER HERE  :");
-      final user = getUser(email: email);
-      return user;
-    } on CouldNotFindUser {
-      final createdNewUser = createUser(email: email);
-      return createdNewUser;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<DatabaseNote> updateNote(
-      {required DatabaseNote note, required String text}) async {
+  Future<DatabaseNote> updateNote({
+    required DatabaseNote note,
+    required String text,
+  }) async {
     await _ensureDbIsOpen();
     final db = _getDatabaseOpenorThrow();
     await getNote(id: note.id);
-    final updateCount = await db.update(noteTable, {
-      isSyncedWithCloudColumn: 0,
-      textColumn: text,
-    });
+    final updateCount = await db.update(
+      noteTable,
+      {
+        isSyncedWithCloudColumn: 0,
+        textColumn: text,
+      },
+      // it makes the current note update both locally and on firebase automatimatically,
+      where: 'id =?',
+      whereArgs: [note.id],
+    );
     if (updateCount == 0) {
       throw CouldNotUpdateNote();
     }
