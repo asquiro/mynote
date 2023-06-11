@@ -17,7 +17,7 @@ class Noteview extends StatefulWidget {
 class _NoteviewState extends State<Noteview> {
   NotesServices? _noteServices;
 
-  String get userEmail => AuthServices.firebase().currentUser!.email!;
+  String get userEmail => AuthServices.firebase().currentUser!.email;
 
   @override
   void initState() {

@@ -57,7 +57,7 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
     // be sure the logged in user has an email
     // the '!' means that compulsorily there must be an existing user and with required email
     final currentUser = AuthServices.firebase().currentUser!;
-    final email = currentUser.email!;
+    final email = currentUser.email;
     final owner = await _notesServices.getUser(email: email);
     final newNote = await _notesServices.createNote(owner: owner);
     _note = newNote;
