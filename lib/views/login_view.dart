@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'dart:developer' as devtools show log;
 
 import 'package:mypersonalnote/constant/routes.dart';
 import 'package:mypersonalnote/services/auth/auth_exception.dart';
-import 'package:mypersonalnote/services/auth/auth_service.dart';
+
+import 'package:mypersonalnote/services/auth/bloc/auth_bloc.dart';
+import 'package:mypersonalnote/services/auth/bloc/auth_event.dart';
 import 'package:mypersonalnote/utilities/dialogs/error_dialog.dart';
 
 class LoginView extends StatefulWidget {
@@ -60,37 +63,9 @@ class _LoginViewState extends State<LoginView> {
               final email = _email.text;
               final password = _password.text;
               try {
-                await AuthServices.firebase().logIn(
-                  email: email,
-                  password: password,
-                );
-
-                final user = AuthServices.firebase().currentUser;
-                if (user?.isEmailVerified ?? false) {
-                  //user is emailVerified
-                  if (!mounted) return;
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    noteRoute,
-                    (route) => false,
-                  );
-                } else {
-                  //user is not emailVerified. return to emailVerification page
-                  if (!mounted) return;
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    verifyEmailRoute,
-                    (route) => false,
-                  );
-                }
-                if (!mounted) return;
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                  noteRoute,
-                  (route) => false,
-                );
-              } on UserNotFoundAuthException {
-                await showErrorDialog(
-                  context,
-                  'user not found',
-                );
+                context.read<AuthBloc>().add(
+                      AuthEventLogIn(email, password),
+                    );
               } on WrongPasswordAuthException {
                 await showErrorDialog(
                   context,

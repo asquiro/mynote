@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mypersonalnote/constant/routes.dart';
-import 'package:mypersonalnote/services/auth/auth_service.dart';
 import 'package:mypersonalnote/services/auth/bloc/auth_bloc.dart';
+import 'package:mypersonalnote/services/auth/bloc/auth_event.dart';
+import 'package:mypersonalnote/services/auth/bloc/auth_state.dart';
 import 'package:mypersonalnote/services/auth/firebase_auth_provider.dart';
 
 import 'package:mypersonalnote/verify_email_view.dart';
@@ -38,29 +39,30 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: AuthServices.firebase().initialize(),
-      builder: (context, snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.done:
-            final user = AuthServices.firebase().currentUser;
-            if (user != null) {
-              if (user.isEmailVerified) {
-                return const Noteview();
-              } else {
-                return const VerifyEmailView();
-              }
-            } else {
-              return const LoginView();
-            }
-          default:
-            return const CircularProgressIndicator();
+    context.read<AuthBloc>().add(
+          const AuthEventInitialized(),
+        );
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        if (state is AuthEventLogIn) {
+          return const Noteview();
+        } else if (state is AuthStateNeedsVerification) {
+          return const VerifyEmailView();
+        } else if (state is AuthEventLogOut) {
+          return const LoginView();
+        } else {
+          return const Scaffold(
+            body: CircularProgressIndicator(),
+          );
         }
       },
     );
   }
-}
+} 
+      
+    
 
+   
 // class HomePage extends StatefulWidget {
 //   const HomePage({super.key});
 
