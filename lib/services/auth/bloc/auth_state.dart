@@ -35,6 +35,5 @@ class AuthStateLoggedOut extends AuthState with EquatableMixin {
   });
 
   @override
-  // TODO: implement props
   List<Object?> get props => [exception, isLoading];
 }
