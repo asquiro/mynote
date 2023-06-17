@@ -5,7 +5,6 @@ import 'package:mypersonalnote/services/auth/bloc/auth_bloc.dart';
 import 'package:mypersonalnote/services/auth/bloc/auth_event.dart';
 import 'package:mypersonalnote/services/auth/bloc/auth_state.dart';
 import 'package:mypersonalnote/services/auth/firebase_auth_provider.dart';
-
 import 'package:mypersonalnote/verify_email_view.dart';
 import 'package:mypersonalnote/views/login_view.dart';
 import 'package:mypersonalnote/views/note/create_update_note_view.dart';
@@ -24,10 +23,6 @@ void main() async {
         child: const HomePage(),
       ),
       routes: {
-        loginRoute: (context) => const LoginView(),
-        registerRoute: (context) => const Registerview(),
-        noteRoute: (context) => const Noteview(),
-        verifyEmailRoute: (context) => const VerifyEmailView(),
         createOrUpdateNoteRoute: (context) => const CreateUpdateNoteView(),
       },
     ),
@@ -50,6 +45,8 @@ class HomePage extends StatelessWidget {
           return const VerifyEmailView();
         } else if (state is AuthEventLogOut) {
           return const LoginView();
+        } else if (state is AuthStateRegistering) {
+          return const Registerview();
         } else {
           return const Scaffold(
             body: CircularProgressIndicator(),

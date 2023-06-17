@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 typedef CloseDialog = void Function();
-
 CloseDialog showloadingDialog({
   required BuildContext context,
   required String text,
@@ -9,8 +8,12 @@ CloseDialog showloadingDialog({
   final dialog = AlertDialog(
     content: Column(
       children: [
-        const CircularProgressIndicator(),
-        const SizedBox(height: 10.0),
+        const CircularProgressIndicator(
+          color: Colors.amber,
+        ),
+        const SizedBox(
+          height: 10.0,
+        ),
         Text(text),
       ],
     ),
